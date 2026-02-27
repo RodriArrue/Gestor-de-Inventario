@@ -39,7 +39,8 @@ app.get('/', (req, res) => {
 // Rutas de la API
 const categoriasRoutes = require('./routes/categorias');
 app.use('/api/categorias', categoriasRoutes);
-// app.use('/api/proveedores', proveedoresRoutes);
+const proveedoresRoutes = require('./routes/proveedores');
+app.use('/api/proveedores', proveedoresRoutes);
 // app.use('/api/productos', productosRoutes);
 // app.use('/api/movimientos', movimientosRoutes);
 
