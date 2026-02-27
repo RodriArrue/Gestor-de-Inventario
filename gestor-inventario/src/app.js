@@ -43,7 +43,8 @@ const proveedoresRoutes = require('./routes/proveedores');
 app.use('/api/proveedores', proveedoresRoutes);
 const productosRoutes = require('./routes/productos');
 app.use('/api/productos', productosRoutes);
-// app.use('/api/movimientos', movimientosRoutes);
+const movimientosRoutes = require('./routes/movimientos');
+app.use('/api/movimientos', movimientosRoutes);
 
 // Middleware de manejo de errores (DESPUÉS de todas las rutas)
 app.use(errorHandler);
