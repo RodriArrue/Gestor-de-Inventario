@@ -36,8 +36,9 @@ app.get('/', (req, res) => {
     });
 });
 
-// Rutas de la API (se agregarán en las siguientes features)
-// app.use('/api/categorias', categoriasRoutes);
+// Rutas de la API
+const categoriasRoutes = require('./routes/categorias');
+app.use('/api/categorias', categoriasRoutes);
 // app.use('/api/proveedores', proveedoresRoutes);
 // app.use('/api/productos', productosRoutes);
 // app.use('/api/movimientos', movimientosRoutes);

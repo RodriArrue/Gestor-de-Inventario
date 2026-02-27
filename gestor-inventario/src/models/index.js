@@ -19,7 +19,11 @@ const sequelize = new Sequelize(
 );
 
 // Importar modelos (se agregan en cada feature)
-const models = {};
+const Categoria = require('./Categoria')(sequelize);
+
+const models = {
+    Categoria,
+};
 
 // Ejecutar asociaciones
 Object.keys(models).forEach((modelName) => {
