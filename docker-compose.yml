@@ -1,0 +1,114 @@
+services:
+  # ========================================
+  # PostgreSQL — Gestor de Usuarios
+  # ========================================
+  db-usuarios:
+    image: postgres:16-alpine
+    container_name: microservicios_db_usuarios
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${USUARIOS_DB_NAME:-gestor_usuarios}
+      POSTGRES_USER: ${USUARIOS_DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${USUARIOS_DB_PASSWORD:-postgres}
+    ports:
+      - "${USUARIOS_DB_PORT:-5432}:5432"
+    volumes:
+      - usuarios_pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${USUARIOS_DB_USER:-postgres} -d ${USUARIOS_DB_NAME:-gestor_usuarios}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ========================================
+  # PostgreSQL — Gestor de Inventario
+  # ========================================
+  db-inventario:
+    image: postgres:16-alpine
+    container_name: microservicios_db_inventario
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${INVENTARIO_DB_NAME:-gestor_inventario}
+      POSTGRES_USER: ${INVENTARIO_DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${INVENTARIO_DB_PASSWORD:-postgres}
+    ports:
+      - "${INVENTARIO_DB_PORT:-5433}:5432"
+    volumes:
+      - inventario_pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${INVENTARIO_DB_USER:-postgres} -d ${INVENTARIO_DB_NAME:-gestor_inventario}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ========================================
+  # Gestor de Usuarios — API
+  # ========================================
+  gestor-usuarios:
+    build:
+      context: ../GestordeUsuarios
+      dockerfile: Dockerfile
+    container_name: microservicios_gestor_usuarios
+    restart: unless-stopped
+    ports:
+      - "${USUARIOS_PORT:-3000}:3000"
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      DB_HOST: db-usuarios
+      DB_PORT: 5432
+      DB_NAME: ${USUARIOS_DB_NAME:-gestor_usuarios}
+      DB_USER: ${USUARIOS_DB_USER:-postgres}
+      DB_PASSWORD: ${USUARIOS_DB_PASSWORD:-postgres}
+      JWT_SECRET: ${JWT_SECRET:-change_me_in_production}
+      JWT_EXPIRES_IN: 24h
+    depends_on:
+      db-usuarios:
+        condition: service_healthy
+
+  # ========================================
+  # Gestor de Inventario — API
+  # ========================================
+  gestor-inventario:
+    build:
+      context: ./gestor-inventario
+      dockerfile: Dockerfile
+    container_name: microservicios_gestor_inventario
+    restart: unless-stopped
+    ports:
+      - "${INVENTARIO_PORT:-3001}:3001"
+    environment:
+      NODE_ENV: production
+      PORT: 3001
+      DB_HOST: db-inventario
+      DB_PORT: 5432
+      DB_NAME: ${INVENTARIO_DB_NAME:-gestor_inventario}
+      DB_USER: ${INVENTARIO_DB_USER:-postgres}
+      DB_PASSWORD: ${INVENTARIO_DB_PASSWORD:-postgres}
+      JWT_SECRET: ${JWT_SECRET:-change_me_in_production}
+    depends_on:
+      db-inventario:
+        condition: service_healthy
+
+  # ========================================
+  # API Gateway
+  # ========================================
+  gateway:
+    build:
+      context: ./gateway
+      dockerfile: Dockerfile
+    container_name: microservicios_gateway
+    restart: unless-stopped
+    ports:
+      - "${GATEWAY_PORT:-8080}:8080"
+    environment:
+      PORT: 8080
+      USUARIOS_SERVICE_URL: http://gestor-usuarios:3000
+      INVENTARIO_SERVICE_URL: http://gestor-inventario:3001
+    depends_on:
+      - gestor-usuarios
+      - gestor-inventario
+
+volumes:
+  usuarios_pg_data:
+  inventario_pg_data:
