@@ -57,20 +57,20 @@ class MovimientoStockService {
             let newStock = producto.currentStock;
 
             switch (data.type) {
-                case 'entrada':
-                    newStock += data.quantity;
-                    break;
-                case 'salida':
-                    newStock -= data.quantity;
-                    if (newStock < 0) {
-                        throw new BadRequestError(
-                            `Stock insuficiente. Stock actual: ${producto.currentStock}, cantidad solicitada: ${data.quantity}`
-                        );
-                    }
-                    break;
-                case 'ajuste':
-                    newStock = data.quantity;
-                    break;
+            case 'entrada':
+                newStock += data.quantity;
+                break;
+            case 'salida':
+                newStock -= data.quantity;
+                if (newStock < 0) {
+                    throw new BadRequestError(
+                        `Stock insuficiente. Stock actual: ${producto.currentStock}, cantidad solicitada: ${data.quantity}`,
+                    );
+                }
+                break;
+            case 'ajuste':
+                newStock = data.quantity;
+                break;
             }
 
             // Actualizar stock del producto

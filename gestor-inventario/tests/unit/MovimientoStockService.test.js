@@ -2,10 +2,6 @@ const MovimientoStockService = require('../../src/services/MovimientoStockServic
 const { NotFoundError, BadRequestError } = require('../../src/errors/AppError');
 
 // Mock de transacción — definido dentro del factory para evitar problemas de hoisting
-const mockTransaction = {
-    commit: jest.fn(),
-    rollback: jest.fn(),
-};
 
 jest.mock('../../src/models', () => {
     // Re-declarar aquí porque jest.mock se hoistea
@@ -37,7 +33,6 @@ jest.mock('../../src/models', () => {
 const { Producto, MovimientoStock, sequelize } = require('../../src/models');
 // Obtener la referencia real al mock de transacción
 const txMock = sequelize._mockTransaction;
-
 
 describe('MovimientoStockService', () => {
     afterEach(() => {
@@ -115,14 +110,16 @@ describe('MovimientoStockService', () => {
             MovimientoStock.create.mockResolvedValue(mockMovimiento);
 
             const result = await MovimientoStockService.create(
-                { productoId: 'prod-1', type: 'entrada', quantity: 5, reason: 'Compra' },
-                'user-1'
+                {
+                    productoId: 'prod-1', type: 'entrada', quantity: 5, reason: 'Compra',
+                },
+                'user-1',
             );
 
             // Stock debe pasar de 10 a 15
             expect(mockProducto.update).toHaveBeenCalledWith(
                 { currentStock: 15 },
-                { transaction: txMock }
+                { transaction: txMock },
             );
             expect(result.movimiento).toEqual(mockMovimiento);
             expect(result.producto.currentStock).toBe(15);
@@ -150,13 +147,13 @@ describe('MovimientoStockService', () => {
 
             const result = await MovimientoStockService.create(
                 { productoId: 'prod-1', type: 'salida', quantity: 3 },
-                'user-1'
+                'user-1',
             );
 
             // Stock debe pasar de 10 a 7
             expect(mockProducto.update).toHaveBeenCalledWith(
                 { currentStock: 7 },
-                { transaction: txMock }
+                { transaction: txMock },
             );
             expect(result.producto.currentStock).toBe(7);
             expect(txMock.commit).toHaveBeenCalledTimes(1);
@@ -173,7 +170,7 @@ describe('MovimientoStockService', () => {
 
             await expect(MovimientoStockService.create(
                 { productoId: 'prod-1', type: 'salida', quantity: 10 },
-                'user-1'
+                'user-1',
             )).rejects.toThrow(BadRequestError);
 
             expect(mockProducto.update).not.toHaveBeenCalled();
@@ -201,13 +198,13 @@ describe('MovimientoStockService', () => {
 
             const result = await MovimientoStockService.create(
                 { productoId: 'prod-1', type: 'ajuste', quantity: 25 },
-                'user-1'
+                'user-1',
             );
 
             // Stock debe ser exactamente 25 (ajuste absoluto)
             expect(mockProducto.update).toHaveBeenCalledWith(
                 { currentStock: 25 },
-                { transaction: txMock }
+                { transaction: txMock },
             );
             expect(result.producto.currentStock).toBe(25);
         });
@@ -222,7 +219,7 @@ describe('MovimientoStockService', () => {
 
             await expect(MovimientoStockService.create(
                 { productoId: '999', type: 'entrada', quantity: 5 },
-                'user-1'
+                'user-1',
             )).rejects.toThrow(NotFoundError);
 
             expect(txMock.rollback).toHaveBeenCalledTimes(1);
@@ -233,7 +230,7 @@ describe('MovimientoStockService', () => {
 
             await expect(MovimientoStockService.create(
                 { productoId: 'prod-1', type: 'entrada', quantity: 5 },
-                'user-1'
+                'user-1',
             )).rejects.toThrow('DB connection lost');
 
             expect(txMock.rollback).toHaveBeenCalledTimes(1);

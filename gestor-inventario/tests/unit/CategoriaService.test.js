@@ -118,7 +118,7 @@ describe('CategoriaService', () => {
             Categoria.findByPk.mockResolvedValue(mockCategoria);
             Categoria.findOne.mockResolvedValue(null); // No existe otra con ese nombre
 
-            const result = await CategoriaService.update('1', { name: 'Electrónica Actualizada' });
+            await CategoriaService.update('1', { name: 'Electrónica Actualizada' });
 
             expect(mockCategoria.update).toHaveBeenCalledWith({ name: 'Electrónica Actualizada' });
         });

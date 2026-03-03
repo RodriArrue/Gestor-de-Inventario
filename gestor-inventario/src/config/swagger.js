@@ -55,7 +55,9 @@ const options = {
                     type: 'object',
                     required: ['name'],
                     properties: {
-                        name: { type: 'string', minLength: 2, maxLength: 100, example: 'Herramientas' },
+                        name: {
+                            type: 'string', minLength: 2, maxLength: 100, example: 'Herramientas',
+                        },
                         description: { type: 'string', maxLength: 500, example: 'Herramientas manuales y eléctricas' },
                     },
                 },
@@ -85,7 +87,9 @@ const options = {
                     type: 'object',
                     required: ['name'],
                     properties: {
-                        name: { type: 'string', minLength: 2, maxLength: 150, example: 'NuevoProveedor S.A.' },
+                        name: {
+                            type: 'string', minLength: 2, maxLength: 150, example: 'NuevoProveedor S.A.',
+                        },
                         contactName: { type: 'string', maxLength: 100, example: 'Juan Pérez' },
                         email: { type: 'string', format: 'email', example: 'contacto@proveedor.com' },
                         phone: { type: 'string', maxLength: 30, example: '+54 11 1234-5678' },
@@ -127,13 +131,23 @@ const options = {
                     type: 'object',
                     required: ['name', 'sku', 'price'],
                     properties: {
-                        name: { type: 'string', minLength: 2, maxLength: 200, example: 'Mouse Inalámbrico' },
+                        name: {
+                            type: 'string', minLength: 2, maxLength: 200, example: 'Mouse Inalámbrico',
+                        },
                         description: { type: 'string', maxLength: 1000, example: 'Mouse con receptor USB nano' },
-                        sku: { type: 'string', minLength: 1, maxLength: 50, example: 'ELEC-MS-002' },
+                        sku: {
+                            type: 'string', minLength: 1, maxLength: 50, example: 'ELEC-MS-002',
+                        },
                         price: { type: 'number', minimum: 0, example: 15000.00 },
-                        currentStock: { type: 'integer', minimum: 0, default: 0, example: 50 },
-                        minStock: { type: 'integer', minimum: 0, default: 0, example: 10 },
-                        maxStock: { type: 'integer', minimum: 0, default: 0, example: 200 },
+                        currentStock: {
+                            type: 'integer', minimum: 0, default: 0, example: 50,
+                        },
+                        minStock: {
+                            type: 'integer', minimum: 0, default: 0, example: 10,
+                        },
+                        maxStock: {
+                            type: 'integer', minimum: 0, default: 0, example: 200,
+                        },
                         categoriaId: { type: 'string', format: 'uuid' },
                         proveedorId: { type: 'string', format: 'uuid' },
                     },

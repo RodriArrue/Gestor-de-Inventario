@@ -2,7 +2,7 @@ const app = require('./app');
 const { testConnection } = require('./config');
 const { env } = require('./config/env');
 
-const PORT = env.PORT;
+const { PORT } = env;
 
 const startServer = async () => {
     try {

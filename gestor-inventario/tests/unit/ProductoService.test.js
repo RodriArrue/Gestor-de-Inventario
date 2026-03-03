@@ -111,7 +111,7 @@ describe('ProductoService', () => {
 
             expect(result).toEqual(mockProducto);
             expect(Producto.findOne).toHaveBeenCalledWith(
-                expect.objectContaining({ where: { sku: 'LAP-001' } })
+                expect.objectContaining({ where: { sku: 'LAP-001' } }),
             );
         });
 
@@ -128,7 +128,9 @@ describe('ProductoService', () => {
     // ============================
     describe('create', () => {
         it('debe crear un producto exitosamente', async () => {
-            const data = { name: 'Laptop', sku: 'LAP-001', price: 999.99, currentStock: 10 };
+            const data = {
+                name: 'Laptop', sku: 'LAP-001', price: 999.99, currentStock: 10,
+            };
             const mockCreated = { id: '1', ...data };
 
             Producto.findOne.mockResolvedValue(null);

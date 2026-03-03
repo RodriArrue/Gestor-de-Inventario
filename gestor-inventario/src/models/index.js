@@ -15,7 +15,7 @@ const sequelize = new Sequelize(
         dialect: dbConfig.dialect,
         logging: dbConfig.logging,
         pool: dbConfig.pool,
-    }
+    },
 );
 
 // Importar modelos (se agregan en cada feature)

@@ -1,4 +1,3 @@
-'use strict';
 const { v4: uuidv4 } = require('uuid');
 
 /** @type {import('sequelize-cli').Migration} */
@@ -7,11 +6,11 @@ module.exports = {
         // Obtener categorías y proveedores existentes para las FK
         const categorias = await queryInterface.sequelize.query(
             'SELECT id, name FROM categorias WHERE deleted_at IS NULL;',
-            { type: queryInterface.sequelize.QueryTypes.SELECT }
+            { type: queryInterface.sequelize.QueryTypes.SELECT },
         );
         const proveedores = await queryInterface.sequelize.query(
             'SELECT id, name FROM proveedores WHERE deleted_at IS NULL;',
-            { type: queryInterface.sequelize.QueryTypes.SELECT }
+            { type: queryInterface.sequelize.QueryTypes.SELECT },
         );
 
         // Mapear por nombre para fácil acceso
@@ -72,7 +71,7 @@ module.exports = {
                 current_stock: 200,
                 min_stock: 30,
                 max_stock: 500,
-                categoria_id: catMap['Ropa'] || null,
+                categoria_id: catMap.Ropa || null,
                 proveedor_id: provMap['Textiles del Sur'] || null,
                 created_at: new Date(),
                 updated_at: new Date(),
@@ -86,7 +85,7 @@ module.exports = {
                 current_stock: 80,
                 min_stock: 15,
                 max_stock: 150,
-                categoria_id: catMap['Ropa'] || null,
+                categoria_id: catMap.Ropa || null,
                 proveedor_id: provMap['Textiles del Sur'] || null,
                 created_at: new Date(),
                 updated_at: new Date(),
@@ -100,7 +99,7 @@ module.exports = {
                 current_stock: 3,
                 min_stock: 10,
                 max_stock: 100,
-                categoria_id: catMap['Alimentos'] || null,
+                categoria_id: catMap.Alimentos || null,
                 proveedor_id: provMap['Alimentos Frescos S.R.L.'] || null,
                 created_at: new Date(),
                 updated_at: new Date(),
@@ -114,7 +113,7 @@ module.exports = {
                 current_stock: 2,
                 min_stock: 20,
                 max_stock: 200,
-                categoria_id: catMap['Alimentos'] || null,
+                categoria_id: catMap.Alimentos || null,
                 proveedor_id: provMap['Alimentos Frescos S.R.L.'] || null,
                 created_at: new Date(),
                 updated_at: new Date(),
@@ -128,7 +127,7 @@ module.exports = {
                 current_stock: 15,
                 min_stock: 3,
                 max_stock: 30,
-                categoria_id: catMap['Herramientas'] || null,
+                categoria_id: catMap.Herramientas || null,
                 proveedor_id: null,
                 created_at: new Date(),
                 updated_at: new Date(),
@@ -142,7 +141,7 @@ module.exports = {
                 current_stock: 8,
                 min_stock: 2,
                 max_stock: 20,
-                categoria_id: catMap['Muebles'] || null,
+                categoria_id: catMap.Muebles || null,
                 proveedor_id: null,
                 created_at: new Date(),
                 updated_at: new Date(),
@@ -156,7 +155,7 @@ module.exports = {
                 current_stock: 12,
                 min_stock: 3,
                 max_stock: 25,
-                categoria_id: catMap['Muebles'] || null,
+                categoria_id: catMap.Muebles || null,
                 proveedor_id: null,
                 created_at: new Date(),
                 updated_at: new Date(),

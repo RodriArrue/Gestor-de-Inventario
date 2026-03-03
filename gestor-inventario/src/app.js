@@ -42,12 +42,16 @@ app.get('/', (req, res) => {
 
 // Rutas de la API
 const categoriasRoutes = require('./routes/categorias');
+
 app.use('/api/categorias', categoriasRoutes);
 const proveedoresRoutes = require('./routes/proveedores');
+
 app.use('/api/proveedores', proveedoresRoutes);
 const productosRoutes = require('./routes/productos');
+
 app.use('/api/productos', productosRoutes);
 const movimientosRoutes = require('./routes/movimientos');
+
 app.use('/api/movimientos', movimientosRoutes);
 
 // Middleware de manejo de errores (DESPUÉS de todas las rutas)

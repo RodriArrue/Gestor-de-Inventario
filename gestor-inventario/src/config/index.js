@@ -14,7 +14,7 @@ const sequelize = new Sequelize(
         dialect: dbConfig.dialect,
         logging: dbConfig.logging,
         pool: dbConfig.pool,
-    }
+    },
 );
 
 const testConnection = async () => {
