@@ -80,7 +80,7 @@ class ProductoService {
                     Producto.sequelize.where(
                         Producto.sequelize.col('current_stock'),
                         Op.lt,
-                        Producto.sequelize.col('min_stock')
+                        Producto.sequelize.col('min_stock'),
                     ),
                 ],
             },

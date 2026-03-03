@@ -29,7 +29,7 @@ const parseEnv = () => {
 
     if (!result.success) {
         const errors = result.error.issues.map(
-            (issue) => `  - ${issue.path.join('.')}: ${issue.message}`
+            (issue) => `  - ${issue.path.join('.')}: ${issue.message}`,
         );
         console.error('❌ Variables de entorno inválidas:');
         console.error(errors.join('\n'));

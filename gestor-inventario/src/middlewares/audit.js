@@ -35,7 +35,7 @@ const sanitizeBody = (body) => {
     if (!body || typeof body !== 'object') return null;
 
     const sanitized = { ...body };
-    SENSITIVE_FIELDS.forEach(field => {
+    SENSITIVE_FIELDS.forEach((field) => {
         if (sanitized[field]) {
             sanitized[field] = '[REDACTED]';
         }
@@ -55,12 +55,10 @@ const extractResourceId = (url) => {
 /**
  * Obtiene la IP del cliente
  */
-const getClientIp = (req) => {
-    return req.ip ||
-        req.headers['x-forwarded-for']?.split(',')[0] ||
-        req.connection?.remoteAddress ||
-        null;
-};
+const getClientIp = (req) => req.ip
+        || req.headers['x-forwarded-for']?.split(',')[0]
+        || req.connection?.remoteAddress
+        || null;
 
 /**
  * Middleware de auditoría automática.
@@ -69,7 +67,7 @@ const getClientIp = (req) => {
  */
 const auditMiddleware = async (req, res, next) => {
     // Excluir rutas específicas
-    if (EXCLUDED_ROUTES.some(route => req.path.startsWith(route))) {
+    if (EXCLUDED_ROUTES.some((route) => req.path.startsWith(route))) {
         return next();
     }
 
@@ -104,7 +102,7 @@ const auditMiddleware = async (req, res, next) => {
         }
 
         // Guardar log de forma asíncrona (no bloquear la respuesta)
-        AuditLog.create(logData).catch(err => {
+        AuditLog.create(logData).catch((err) => {
             console.error('Error al crear log de auditoría:', err.message);
         });
 
