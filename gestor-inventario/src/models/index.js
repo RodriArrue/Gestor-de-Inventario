@@ -23,12 +23,14 @@ const Categoria = require('./Categoria')(sequelize);
 const Proveedor = require('./Proveedor')(sequelize);
 const Producto = require('./Producto')(sequelize);
 const MovimientoStock = require('./MovimientoStock')(sequelize);
+const AuditLog = require('./AuditLog')(sequelize);
 
 const models = {
     Categoria,
     Proveedor,
     Producto,
     MovimientoStock,
+    AuditLog,
 };
 
 // Ejecutar asociaciones

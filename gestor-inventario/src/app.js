@@ -6,6 +6,7 @@ const { swaggerSpec } = require('./config/swagger');
 // Importar middlewares
 const { errorHandler } = require('./middlewares/errorHandler');
 const { globalLimiter } = require('./middlewares/rateLimiter');
+const { auditMiddleware } = require('./middlewares/audit');
 
 const app = express();
 
@@ -22,6 +23,9 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
 
 // Rate limiting global
 app.use('/api', globalLimiter);
+
+// Auditoría automática (después del rate limiter, antes de las rutas)
+app.use(auditMiddleware);
 
 // Health check
 app.get('/health', (req, res) => {
