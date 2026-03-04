@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const swaggerUi = require('swagger-ui-express');
 const { swaggerSpec } = require('./config/swagger');
+const { sequelize } = require('./models');
 
 // Importar middlewares
 const { errorHandler } = require('./middlewares/errorHandler');
@@ -9,6 +10,8 @@ const { globalLimiter } = require('./middlewares/rateLimiter');
 const { auditMiddleware } = require('./middlewares/audit');
 
 const app = express();
+
+const startTime = Date.now();
 
 // Middlewares
 app.use(cors());
@@ -27,9 +30,34 @@ app.use('/api', globalLimiter);
 // Auditoría automática (después del rate limiter, antes de las rutas)
 app.use(auditMiddleware);
 
-// Health check
-app.get('/health', (req, res) => {
-    res.json({ status: 'OK', service: 'gestor-inventario', timestamp: new Date().toISOString() });
+// Health check con verificación de DB
+app.get('/health', async (req, res) => {
+    const health = {
+        status: 'OK',
+        service: 'gestor-inventario',
+        timestamp: new Date().toISOString(),
+        uptime: `${Math.floor((Date.now() - startTime) / 1000)}s`,
+        database: { status: 'disconnected' },
+    };
+
+    try {
+        const dbStart = Date.now();
+        await sequelize.authenticate();
+        health.database = {
+            status: 'connected',
+            latency: `${Date.now() - dbStart}ms`,
+            dialect: sequelize.getDialect(),
+        };
+    } catch (err) {
+        health.status = 'DEGRADED';
+        health.database = {
+            status: 'disconnected',
+            error: err.message,
+        };
+        return res.status(503).json(health);
+    }
+
+    res.json(health);
 });
 
 // Ruta base
