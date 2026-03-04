@@ -5,20 +5,53 @@ const { USUARIOS_SERVICE_URL, INVENTARIO_SERVICE_URL } = require('./config/env')
 
 const app = express();
 
+const startTime = Date.now();
+
+/**
+ * Verifica un servicio upstream llamando a su /health.
+ */
+const checkUpstream = async (name, url) => {
+    const start = Date.now();
+    try {
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 3000);
+        const response = await fetch(`${url}/health`, { signal: controller.signal });
+        clearTimeout(timeout);
+        const latency = `${Date.now() - start}ms`;
+
+        if (response.ok) {
+            return { status: 'up', latency, url };
+        }
+        return { status: 'degraded', latency, url, statusCode: response.status };
+    } catch (err) {
+        return { status: 'down', url, error: err.message };
+    }
+};
+
 // CORS global
 app.use(cors());
 
-// Health check
-app.get('/health', (req, res) => {
-    res.json({
-        status: 'OK',
+// Health check con verificación de upstreams
+app.get('/health', async (req, res) => {
+    const [usuarios, inventario] = await Promise.all([
+        checkUpstream('gestor-usuarios', USUARIOS_SERVICE_URL),
+        checkUpstream('gestor-inventario', INVENTARIO_SERVICE_URL),
+    ]);
+
+    const allUp = usuarios.status === 'up' && inventario.status === 'up';
+
+    const health = {
+        status: allUp ? 'OK' : 'DEGRADED',
         service: 'api-gateway',
         timestamp: new Date().toISOString(),
+        uptime: `${Math.floor((Date.now() - startTime) / 1000)}s`,
         upstreams: {
-            'gestor-usuarios': USUARIOS_SERVICE_URL,
-            'gestor-inventario': INVENTARIO_SERVICE_URL,
+            'gestor-usuarios': usuarios,
+            'gestor-inventario': inventario,
         },
-    });
+    };
+
+    res.status(allUp ? 200 : 503).json(health);
 });
 
 // Ruta base
