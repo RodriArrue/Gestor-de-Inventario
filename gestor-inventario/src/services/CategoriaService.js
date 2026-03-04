@@ -1,12 +1,18 @@
 const { Categoria, Producto } = require('../models');
 const { NotFoundError, ConflictError } = require('../errors/AppError');
+const { parsePagination, buildPaginationMeta } = require('../utils/pagination');
 
 class CategoriaService {
     /**
-     * Obtener todas las categorías con conteo de productos.
+     * Obtener todas las categorías con conteo de productos (paginado).
      */
-    static async getAll() {
-        return Categoria.findAll({
+    static async getAll(query = {}) {
+        const { page, limit, offset } = parsePagination(query);
+
+        // COUNT total (sin GROUP BY para obtener el total real)
+        const totalItems = await Categoria.count();
+
+        const rows = await Categoria.findAll({
             attributes: {
                 include: [
                     [
@@ -22,7 +28,14 @@ class CategoriaService {
             }],
             group: ['Categoria.id'],
             order: [['name', 'ASC']],
+            limit,
+            offset,
         });
+
+        return {
+            data: rows,
+            pagination: buildPaginationMeta(totalItems, page, limit),
+        };
     }
 
     /**

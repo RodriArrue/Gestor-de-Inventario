@@ -1,19 +1,21 @@
 const { sequelize } = require('../models');
 const { Producto, MovimientoStock } = require('../models');
 const { NotFoundError, BadRequestError } = require('../errors/AppError');
+const { parsePagination, buildPaginationMeta } = require('../utils/pagination');
 
 class MovimientoStockService {
     /**
-     * Obtener todos los movimientos con info del producto.
+     * Obtener todos los movimientos con info del producto (paginado).
      */
     static async getAll(query = {}) {
+        const { page, limit, offset } = parsePagination(query);
         const where = {};
 
         if (query.type) {
             where.type = query.type;
         }
 
-        return MovimientoStock.findAll({
+        const { count, rows } = await MovimientoStock.findAndCountAll({
             where,
             include: [{
                 model: Producto,
@@ -21,7 +23,15 @@ class MovimientoStockService {
                 attributes: ['id', 'name', 'sku', 'current_stock'],
             }],
             order: [['created_at', 'DESC']],
+            limit,
+            offset,
+            distinct: true,
         });
+
+        return {
+            data: rows,
+            pagination: buildPaginationMeta(count, page, limit),
+        };
     }
 
     /**
@@ -57,20 +67,20 @@ class MovimientoStockService {
             let newStock = producto.currentStock;
 
             switch (data.type) {
-            case 'entrada':
-                newStock += data.quantity;
-                break;
-            case 'salida':
-                newStock -= data.quantity;
-                if (newStock < 0) {
-                    throw new BadRequestError(
-                        `Stock insuficiente. Stock actual: ${producto.currentStock}, cantidad solicitada: ${data.quantity}`,
-                    );
-                }
-                break;
-            case 'ajuste':
-                newStock = data.quantity;
-                break;
+                case 'entrada':
+                    newStock += data.quantity;
+                    break;
+                case 'salida':
+                    newStock -= data.quantity;
+                    if (newStock < 0) {
+                        throw new BadRequestError(
+                            `Stock insuficiente. Stock actual: ${producto.currentStock}, cantidad solicitada: ${data.quantity}`,
+                        );
+                    }
+                    break;
+                case 'ajuste':
+                    newStock = data.quantity;
+                    break;
             }
 
             // Actualizar stock del producto

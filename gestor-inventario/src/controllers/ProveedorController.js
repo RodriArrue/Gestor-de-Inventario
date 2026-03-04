@@ -3,8 +3,8 @@ const ProveedorService = require('../services/ProveedorService');
 class ProveedorController {
     static async getAll(req, res, next) {
         try {
-            const proveedores = await ProveedorService.getAll();
-            res.json({ status: 'success', data: proveedores });
+            const result = await ProveedorService.getAll(req.query);
+            res.json({ status: 'success', ...result });
         } catch (error) {
             next(error);
         }

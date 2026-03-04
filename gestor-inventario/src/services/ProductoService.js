@@ -1,12 +1,14 @@
 const { Op } = require('sequelize');
 const { Producto, Categoria, Proveedor } = require('../models');
 const { NotFoundError, ConflictError } = require('../errors/AppError');
+const { parsePagination, buildPaginationMeta } = require('../utils/pagination');
 
 class ProductoService {
     /**
-     * Obtener todos los productos con filtros opcionales.
+     * Obtener todos los productos con filtros opcionales (paginado).
      */
     static async getAll(query = {}) {
+        const { page, limit, offset } = parsePagination(query);
         const where = {};
 
         if (query.categoriaId) {
@@ -22,14 +24,22 @@ class ProductoService {
             ];
         }
 
-        return Producto.findAll({
+        const { count, rows } = await Producto.findAndCountAll({
             where,
             include: [
                 { model: Categoria, as: 'categoria', attributes: ['id', 'name'] },
                 { model: Proveedor, as: 'proveedor', attributes: ['id', 'name'] },
             ],
             order: [['name', 'ASC']],
+            limit,
+            offset,
+            distinct: true,
         });
+
+        return {
+            data: rows,
+            pagination: buildPaginationMeta(count, page, limit),
+        };
     }
 
     /**

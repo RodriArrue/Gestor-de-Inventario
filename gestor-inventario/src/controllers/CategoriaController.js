@@ -3,8 +3,8 @@ const CategoriaService = require('../services/CategoriaService');
 class CategoriaController {
     static async getAll(req, res, next) {
         try {
-            const categorias = await CategoriaService.getAll();
-            res.json({ status: 'success', data: categorias });
+            const result = await CategoriaService.getAll(req.query);
+            res.json({ status: 'success', ...result });
         } catch (error) {
             next(error);
         }

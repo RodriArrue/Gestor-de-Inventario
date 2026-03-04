@@ -3,8 +3,8 @@ const MovimientoStockService = require('../services/MovimientoStockService');
 class MovimientoStockController {
     static async getAll(req, res, next) {
         try {
-            const movimientos = await MovimientoStockService.getAll(req.query);
-            res.json({ status: 'success', data: movimientos });
+            const result = await MovimientoStockService.getAll(req.query);
+            res.json({ status: 'success', ...result });
         } catch (error) {
             next(error);
         }

@@ -6,6 +6,7 @@ jest.mock('../../src/models', () => {
     const mockCategoria = {
         findAll: jest.fn(),
         findByPk: jest.fn(),
+        count: jest.fn(),
         findOne: jest.fn(),
         create: jest.fn(),
         sequelize: {
@@ -33,25 +34,43 @@ describe('CategoriaService', () => {
     // getAll
     // ============================
     describe('getAll', () => {
-        it('debe retornar todas las categorías', async () => {
+        it('debe retornar categorías paginadas', async () => {
             const mockCategorias = [
                 { id: '1', name: 'Electrónica', description: 'Dispositivos' },
                 { id: '2', name: 'Ropa', description: 'Prendas' },
             ];
+            Categoria.count.mockResolvedValue(2);
             Categoria.findAll.mockResolvedValue(mockCategorias);
 
             const result = await CategoriaService.getAll();
 
-            expect(result).toEqual(mockCategorias);
-            expect(Categoria.findAll).toHaveBeenCalledTimes(1);
+            expect(result.data).toEqual(mockCategorias);
+            expect(result.pagination).toBeDefined();
+            expect(result.pagination.totalItems).toBe(2);
+            expect(result.pagination.currentPage).toBe(1);
+        });
+
+        it('debe respetar page y limit del query', async () => {
+            Categoria.count.mockResolvedValue(50);
+            Categoria.findAll.mockResolvedValue([]);
+
+            const result = await CategoriaService.getAll({ page: '2', limit: '10' });
+
+            expect(result.pagination.currentPage).toBe(2);
+            expect(result.pagination.itemsPerPage).toBe(10);
+            expect(result.pagination.totalPages).toBe(5);
+            expect(result.pagination.hasNextPage).toBe(true);
+            expect(result.pagination.hasPrevPage).toBe(true);
         });
 
         it('debe retornar array vacío si no hay categorías', async () => {
+            Categoria.count.mockResolvedValue(0);
             Categoria.findAll.mockResolvedValue([]);
 
             const result = await CategoriaService.getAll();
 
-            expect(result).toEqual([]);
+            expect(result.data).toEqual([]);
+            expect(result.pagination.totalItems).toBe(0);
         });
     });
 

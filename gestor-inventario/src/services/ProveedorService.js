@@ -1,9 +1,17 @@
 const { Proveedor, Producto } = require('../models');
 const { NotFoundError, ConflictError } = require('../errors/AppError');
+const { parsePagination, buildPaginationMeta } = require('../utils/pagination');
 
 class ProveedorService {
-    static async getAll() {
-        return Proveedor.findAll({
+    /**
+     * Obtener todos los proveedores con conteo de productos (paginado).
+     */
+    static async getAll(query = {}) {
+        const { page, limit, offset } = parsePagination(query);
+
+        const totalItems = await Proveedor.count();
+
+        const rows = await Proveedor.findAll({
             attributes: {
                 include: [
                     [
@@ -19,9 +27,19 @@ class ProveedorService {
             }],
             group: ['Proveedor.id'],
             order: [['name', 'ASC']],
+            limit,
+            offset,
         });
+
+        return {
+            data: rows,
+            pagination: buildPaginationMeta(totalItems, page, limit),
+        };
     }
 
+    /**
+     * Obtener un proveedor por ID.
+     */
     static async getById(id) {
         const proveedor = await Proveedor.findByPk(id, {
             include: [{
@@ -38,6 +56,9 @@ class ProveedorService {
         return proveedor;
     }
 
+    /**
+     * Crear un nuevo proveedor.
+     */
     static async create(data) {
         const existing = await Proveedor.findOne({ where: { name: data.name } });
         if (existing) {
@@ -47,6 +68,9 @@ class ProveedorService {
         return Proveedor.create(data);
     }
 
+    /**
+     * Actualizar un proveedor existente.
+     */
     static async update(id, data) {
         const proveedor = await Proveedor.findByPk(id);
         if (!proveedor) {
@@ -63,6 +87,9 @@ class ProveedorService {
         return proveedor.update(data);
     }
 
+    /**
+     * Eliminar un proveedor (soft delete).
+     */
     static async delete(id) {
         const proveedor = await Proveedor.findByPk(id);
         if (!proveedor) {

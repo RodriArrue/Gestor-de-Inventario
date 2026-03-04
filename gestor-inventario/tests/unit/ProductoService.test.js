@@ -4,6 +4,7 @@ const { NotFoundError, ConflictError } = require('../../src/errors/AppError');
 jest.mock('../../src/models', () => {
     const mockProducto = {
         findAll: jest.fn(),
+        findAndCountAll: jest.fn(),
         findByPk: jest.fn(),
         findOne: jest.fn(),
         create: jest.fn(),
@@ -35,44 +36,44 @@ describe('ProductoService', () => {
     // getAll
     // ============================
     describe('getAll', () => {
-        it('debe retornar todos los productos sin filtros', async () => {
+        it('debe retornar productos paginados', async () => {
             const mockProductos = [
                 { id: '1', name: 'Laptop', sku: 'LAP-001' },
                 { id: '2', name: 'Mouse', sku: 'MOU-001' },
             ];
-            Producto.findAll.mockResolvedValue(mockProductos);
+            Producto.findAndCountAll.mockResolvedValue({ count: 2, rows: mockProductos });
 
             const result = await ProductoService.getAll();
 
-            expect(result).toEqual(mockProductos);
-            expect(Producto.findAll).toHaveBeenCalledTimes(1);
+            expect(result.data).toEqual(mockProductos);
+            expect(result.pagination.totalItems).toBe(2);
+            expect(result.pagination.currentPage).toBe(1);
         });
 
         it('debe filtrar por categoriaId', async () => {
-            Producto.findAll.mockResolvedValue([]);
+            Producto.findAndCountAll.mockResolvedValue({ count: 0, rows: [] });
 
             await ProductoService.getAll({ categoriaId: 'cat-1' });
 
-            const callArgs = Producto.findAll.mock.calls[0][0];
+            const callArgs = Producto.findAndCountAll.mock.calls[0][0];
             expect(callArgs.where.categoria_id).toBe('cat-1');
         });
 
         it('debe filtrar por proveedorId', async () => {
-            Producto.findAll.mockResolvedValue([]);
+            Producto.findAndCountAll.mockResolvedValue({ count: 0, rows: [] });
 
             await ProductoService.getAll({ proveedorId: 'prov-1' });
 
-            const callArgs = Producto.findAll.mock.calls[0][0];
+            const callArgs = Producto.findAndCountAll.mock.calls[0][0];
             expect(callArgs.where.proveedor_id).toBe('prov-1');
         });
 
         it('debe aplicar búsqueda por nombre o SKU', async () => {
-            Producto.findAll.mockResolvedValue([]);
+            Producto.findAndCountAll.mockResolvedValue({ count: 0, rows: [] });
 
             await ProductoService.getAll({ search: 'laptop' });
 
-            const callArgs = Producto.findAll.mock.calls[0][0];
-            // Op.or es un Symbol, no aparece en Object.keys()
+            const callArgs = Producto.findAndCountAll.mock.calls[0][0];
             const symbolKeys = Object.getOwnPropertySymbols(callArgs.where);
             expect(symbolKeys.length).toBeGreaterThan(0);
         });

@@ -6,6 +6,7 @@ jest.mock('../../src/models', () => {
         findAll: jest.fn(),
         findByPk: jest.fn(),
         findOne: jest.fn(),
+        count: jest.fn(),
         create: jest.fn(),
         sequelize: {
             fn: jest.fn(),
@@ -32,17 +33,19 @@ describe('ProveedorService', () => {
     // getAll
     // ============================
     describe('getAll', () => {
-        it('debe retornar todos los proveedores', async () => {
+        it('debe retornar proveedores paginados', async () => {
             const mockProveedores = [
                 { id: '1', name: 'TechDist', email: 'ventas@tech.com' },
                 { id: '2', name: 'Textiles', email: 'info@textiles.com' },
             ];
+            Proveedor.count.mockResolvedValue(2);
             Proveedor.findAll.mockResolvedValue(mockProveedores);
 
             const result = await ProveedorService.getAll();
 
-            expect(result).toEqual(mockProveedores);
-            expect(Proveedor.findAll).toHaveBeenCalledTimes(1);
+            expect(result.data).toEqual(mockProveedores);
+            expect(result.pagination).toBeDefined();
+            expect(result.pagination.totalItems).toBe(2);
         });
     });
 

@@ -17,6 +17,7 @@ jest.mock('../../src/models', () => {
 
     const mockMovimientoStock = {
         findAll: jest.fn(),
+        findAndCountAll: jest.fn(),
         create: jest.fn(),
     };
 
@@ -45,24 +46,25 @@ describe('MovimientoStockService', () => {
     // getAll
     // ============================
     describe('getAll', () => {
-        it('debe retornar todos los movimientos', async () => {
+        it('debe retornar movimientos paginados', async () => {
             const mockMovimientos = [
                 { id: '1', type: 'entrada', quantity: 10 },
                 { id: '2', type: 'salida', quantity: 5 },
             ];
-            MovimientoStock.findAll.mockResolvedValue(mockMovimientos);
+            MovimientoStock.findAndCountAll.mockResolvedValue({ count: 2, rows: mockMovimientos });
 
             const result = await MovimientoStockService.getAll();
 
-            expect(result).toEqual(mockMovimientos);
+            expect(result.data).toEqual(mockMovimientos);
+            expect(result.pagination.totalItems).toBe(2);
         });
 
         it('debe filtrar por tipo', async () => {
-            MovimientoStock.findAll.mockResolvedValue([]);
+            MovimientoStock.findAndCountAll.mockResolvedValue({ count: 0, rows: [] });
 
             await MovimientoStockService.getAll({ type: 'entrada' });
 
-            const callArgs = MovimientoStock.findAll.mock.calls[0][0];
+            const callArgs = MovimientoStock.findAndCountAll.mock.calls[0][0];
             expect(callArgs.where.type).toBe('entrada');
         });
     });
