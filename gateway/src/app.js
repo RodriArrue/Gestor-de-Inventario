@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const { createProxyMiddleware } = require('http-proxy-middleware');
 const { USUARIOS_SERVICE_URL, INVENTARIO_SERVICE_URL } = require('./config/env');
+const { gatewayAuth } = require('./middlewares/auth');
 
 const app = express();
 
@@ -30,6 +31,9 @@ const checkUpstream = async (name, url) => {
 
 // CORS global
 app.use(cors());
+
+// Validación JWT (antes de cualquier proxy)
+app.use(gatewayAuth);
 
 // Health check con verificación de upstreams
 app.get('/health', async (req, res) => {

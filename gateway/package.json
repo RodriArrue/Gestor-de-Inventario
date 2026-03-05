@@ -16,7 +16,8 @@
         "cors": "^2.8.6",
         "dotenv": "^17.2.3",
         "express": "^5.2.1",
-        "http-proxy-middleware": "^3.0.0"
+        "http-proxy-middleware": "^3.0.0",
+        "jsonwebtoken": "^9.0.3"
     },
     "devDependencies": {
         "eslint": "^8.57.1",
