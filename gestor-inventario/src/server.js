@@ -10,14 +10,14 @@ const startServer = async () => {
         await testConnection();
 
         if (env.NODE_ENV !== 'production') {
-            console.log('💡 Ejecuta "npm run db:migrate" para aplicar migraciones pendientes.');
+            console.log(' Ejecuta "npm run db:migrate" para aplicar migraciones pendientes.');
         }
 
         app.listen(PORT, () => {
-            console.log(`🚀 Gestor de Inventario corriendo en http://localhost:${PORT}`);
+            console.log(` Gestor de Inventario corriendo en http://localhost:${PORT}`);
         });
     } catch (error) {
-        console.error('❌ Error al iniciar el servidor:', error);
+        console.error(' Error al iniciar el servidor:', error);
         process.exit(1);
     }
 };
